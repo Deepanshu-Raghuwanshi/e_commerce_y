@@ -56,6 +56,69 @@ const checkout = async (req, res) => {
   }
 };
 
+/**
+ * Get all orders for the current user
+ * @route GET /api/checkout/orders
+ * @access Private
+ */
+const getUserOrders = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // Find all orders for the user, sorted by creation date (newest first)
+    const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get a specific order by ID
+ * @route GET /api/checkout/orders/:id
+ * @access Private
+ */
+const getOrderById = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const orderId = req.params.id;
+
+    // Find the specific order for the user
+    const order = await Order.findOne({ _id: orderId, userId });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: order,
+    });
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   checkout,
+  getUserOrders,
+  getOrderById,
 };

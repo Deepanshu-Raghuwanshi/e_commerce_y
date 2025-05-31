@@ -105,13 +105,27 @@ const seedIfEmpty = async () => {
 };
 
 /**
- * Resets the database by deleting all products and re-seeding
+ * Resets the database by deleting all collections and re-seeding products
  */
 const resetDatabase = async () => {
   try {
     console.log("Resetting database...");
 
-    // Delete all existing products
+    // Import all models
+    const User = require("../models/User");
+    const Cart = require("../models/Cart");
+    const Order = require("../models/Order");
+
+    // Delete all documents from all collections
+    await User.deleteMany({});
+    console.log("All users deleted");
+
+    await Cart.deleteMany({});
+    console.log("All carts deleted");
+
+    await Order.deleteMany({});
+    console.log("All orders deleted");
+
     await Product.deleteMany({});
     console.log("All products deleted");
 
@@ -123,7 +137,7 @@ const resetDatabase = async () => {
 
     return {
       success: true,
-      message: "Database reset successful",
+      message: "Database reset successful - all collections cleared",
       count: products.length,
     };
   } catch (error) {

@@ -164,9 +164,9 @@ const removeFromCart = async (req, res) => {
       });
     }
 
-    // Find the item in the cart
-    const itemIndex = cart.items.findIndex(
-      (item) => item._id.toString() === itemId
+    // Find the index of the item with matching product ID
+    let itemIndex = cart.items.findIndex(
+      (item) => item.product.toString() === itemId
     );
 
     if (itemIndex === -1) {
@@ -220,8 +220,145 @@ const removeFromCart = async (req, res) => {
   }
 };
 
+/**
+ * Update item quantity in cart
+ * @route PUT /api/cart
+ * @access Private
+ */
+const updateCartItem = async (req, res) => {
+  try {
+    const { productId, quantity } = req.body;
+    const userId = req.userId;
+
+    // Validate input
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        message: "Product ID is required",
+      });
+    }
+
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Quantity must be greater than 0",
+      });
+    }
+
+    // Find the cart
+    const cart = await Cart.findOne({ userId });
+
+    if (!cart) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart not found",
+      });
+    }
+
+    // Find the item in the cart by product ID
+    const itemIndex = cart.items.findIndex(
+      (item) => item.product.toString() === productId
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found in cart",
+      });
+    }
+
+    // Update the quantity
+    cart.items[itemIndex].quantity = quantity;
+
+    // Recalculate total price and items
+    cart.totalItems = cart.items.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
+    cart.totalPrice = cart.items.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+
+    // Apply discount if applicable
+    const { discountApplied, discount } = calculateDiscount(cart.items);
+    cart.discountApplied = discountApplied;
+    cart.discount = discount;
+
+    // If discount applied, update total price
+    if (discountApplied) {
+      cart.totalPrice -= discount;
+    }
+
+    // Save the cart
+    await cart.save();
+
+    // Populate product details for response
+    await cart.populate("items.product");
+
+    res.status(200).json({
+      success: true,
+      message: "Cart item updated",
+      data: cart,
+    });
+  } catch (error) {
+    console.error("Error updating cart item:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Clear user's cart
+ * @route DELETE /api/cart/clear
+ * @access Private
+ */
+const clearCart = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // Find the cart
+    const cart = await Cart.findOne({ userId });
+
+    if (!cart) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart not found",
+      });
+    }
+
+    // Clear all items
+    cart.items = [];
+    cart.totalItems = 0;
+    cart.totalPrice = 0;
+    cart.discount = 0;
+    cart.discountApplied = false;
+
+    // Save the cart
+    await cart.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Cart cleared successfully",
+      data: cart,
+    });
+  } catch (error) {
+    console.error("Error clearing cart:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getCart,
   addToCart,
   removeFromCart,
+  updateCartItem,
+  clearCart,
 };

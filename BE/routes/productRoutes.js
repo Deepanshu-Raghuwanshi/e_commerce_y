@@ -5,7 +5,7 @@ const {
   getProductById,
 } = require("../controllers/productController");
 
-// GET /api/products - Get all products
+// GET /api/products - Get all products organized by categories
 router.get("/", getProducts);
 
 // GET /api/products/:id - Get a single product by ID
