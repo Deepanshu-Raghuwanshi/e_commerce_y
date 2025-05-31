@@ -14,6 +14,7 @@ import OrderDetailPage from "./pages/OrderDetailPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ChatWidget from "./components/ChatWidget";
 import CartProvider from "./components/CartProvider";
+import ToastContainer from "./components/ToastContainer";
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
             </Routes>
           </main>
           <ChatWidget />
+          <ToastContainer />
         </div>
       </Router>
     </Provider>

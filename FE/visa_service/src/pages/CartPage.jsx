@@ -9,6 +9,7 @@ import {
   fetchCart,
   clearCartError,
 } from "../store/cartSlice";
+import { showSuccessToast, showErrorToast } from "../store/toastSlice";
 import CouponSection from "../components/CouponSection";
 
 const CartPage = () => {
@@ -44,23 +45,41 @@ const CartPage = () => {
     }
   }, [error, dispatch]);
 
-  const handleRemoveItem = (id) => {
-    if (isOnline) {
-      console.log("Removing item with ID:", id);
-      dispatch(removeItemFromCart(id));
-    } else {
-      dispatch(removeFromCart(id));
+  const handleRemoveItem = async (id) => {
+    const item = items.find((item) => item.id === id);
+    const itemName = item ? item.name : "Item";
+
+    try {
+      if (isOnline) {
+        console.log("Removing item with ID:", id);
+        await dispatch(removeItemFromCart(id)).unwrap();
+      } else {
+        dispatch(removeFromCart(id));
+      }
+      dispatch(showSuccessToast(`${itemName} removed from cart`));
+    } catch (error) {
+      dispatch(showErrorToast("Failed to remove item from cart"));
     }
   };
 
-  const handleQuantityChange = (id, quantity) => {
+  const handleQuantityChange = async (id, quantity) => {
     if (quantity < 1) return; // Don't allow quantity less than 1
 
-    if (isOnline) {
-      console.log("Updating item quantity:", id, quantity);
-      dispatch(updateCartItemQuantity({ productId: id, quantity }));
-    } else {
-      dispatch(updateQuantity({ id, quantity }));
+    try {
+      if (isOnline) {
+        console.log("Updating item quantity:", id, quantity);
+        await dispatch(
+          updateCartItemQuantity({ productId: id, quantity })
+        ).unwrap();
+      } else {
+        dispatch(updateQuantity({ id, quantity }));
+      }
+      // Only show toast for significant quantity changes (not every increment)
+      if (quantity === 1) {
+        dispatch(showSuccessToast("Quantity updated"));
+      }
+    } catch (error) {
+      dispatch(showErrorToast("Failed to update quantity"));
     }
   };
 

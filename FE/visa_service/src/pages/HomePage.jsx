@@ -3,6 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import ProductCard from "../components/ProductCard";
 import ProductCarousel from "../components/ProductCarousel";
 import { fetchProducts } from "../store/productSlice";
+import {
+  showSuccessToast,
+  showErrorToast,
+  showWarningToast,
+  showInfoToast,
+} from "../store/toastSlice";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -228,27 +234,6 @@ const HomePage = () => {
             )}
           </div>
         )}
-
-        {/* Newsletter Section */}
-        <div className="mt-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 lg:p-12 text-center text-white">
-          <h3 className="text-2xl lg:text-3xl font-bold mb-4">
-            Stay Updated with Our Latest Offers!
-          </h3>
-          <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            Subscribe to our newsletter and be the first to know about new
-            products, exclusive deals, and special discounts.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
-            />
-            <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors duration-200">
-              Subscribe
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

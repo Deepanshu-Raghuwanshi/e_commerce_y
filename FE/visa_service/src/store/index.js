@@ -4,6 +4,7 @@ import productReducer from "./productSlice";
 import checkoutReducer from "./checkoutSlice";
 import chatReducer from "./chatSlice";
 import authReducer from "./authSlice";
+import toastReducer from "./toastSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     products: productReducer,
     checkout: checkoutReducer,
     chat: chatReducer,
+    toast: toastReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

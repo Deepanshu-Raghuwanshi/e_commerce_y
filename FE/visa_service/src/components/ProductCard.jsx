@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, addItemToCart } from "../store/cartSlice";
-import Toast from "./Toast";
+import { showSuccessToast, showErrorToast } from "../store/toastSlice";
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
   const { isOnline } = useSelector((state) => state.cart);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -28,18 +26,17 @@ const ProductCard = ({ product }) => {
         ).unwrap();
 
         if (result.success) {
-          setShowSuccessToast(true);
+          dispatch(showSuccessToast(`${product.name} added to cart!`));
         } else {
           throw new Error(result.message || "Failed to add item to cart");
         }
       } else {
         dispatch(addToCart(product));
-        setShowSuccessToast(true);
+        dispatch(showSuccessToast(`${product.name} added to cart!`));
       }
     } catch (error) {
       console.error("Failed to add item to cart:", error);
-      setErrorMessage(error.message || "Failed to add item to cart");
-      setShowErrorToast(true);
+      dispatch(showErrorToast(error.message || "Failed to add item to cart"));
     } finally {
       setIsAddingToCart(false);
     }
@@ -183,22 +180,6 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
       </div>
-
-      {showSuccessToast && (
-        <Toast
-          message={`${product.name} added to cart!`}
-          type="success"
-          onClose={() => setShowSuccessToast(false)}
-        />
-      )}
-
-      {showErrorToast && (
-        <Toast
-          message={errorMessage}
-          type="error"
-          onClose={() => setShowErrorToast(false)}
-        />
-      )}
     </>
   );
 };
