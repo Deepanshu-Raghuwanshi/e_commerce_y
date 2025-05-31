@@ -18,7 +18,7 @@ export const sendChatMessage = createAsyncThunk(
 const initialState = {
   messages: [
     {
-      text: "Hello! How can I help you with our visa services today?",
+      text: "Hello! Welcome to ShopHub! How can I help you find the perfect products today?",
       isUser: false,
     },
   ],
@@ -40,7 +40,7 @@ const chatSlice = createSlice({
     resetChat: (state) => {
       state.messages = [
         {
-          text: "Hello! How can I help you with our visa services today?",
+          text: "Hello! Welcome to ShopHub! How can I help you find the perfect products today?",
           isUser: false,
         },
       ];

@@ -104,6 +104,10 @@ const ChatWidget = () => {
     setInputValue("");
   };
 
+  // JotForm chatbot integration - UI commented out, keeping Redux logic intact
+  return null;
+
+  /* Original ChatWidget UI - Commented out for JotForm integration
   return (
     <div className="fixed bottom-4 right-4 z-40">
       {isOpen ? (
@@ -273,6 +277,7 @@ const ChatWidget = () => {
       )}
     </div>
   );
+  */
 };
 
 export default ChatWidget;
