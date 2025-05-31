@@ -11,6 +11,7 @@ const ProductCard = ({ product }) => {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [imageError, setImageError] = useState(false);
 
   const handleAddToCart = async () => {
     if (isAddingToCart) return;
@@ -50,22 +51,28 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Default image if none provided
-  const productImage =
-    product.image || "https://via.placeholder.com/150?text=Visa+Service";
+  // Default image if none provided or if image fails to load
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=300&h=200&fit=crop";
+  const productImage = imageError
+    ? fallbackImage
+    : product.image || fallbackImage;
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   return (
     <>
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-        {product.image && (
-          <div className="h-48 overflow-hidden">
-            <img
-              src={productImage}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
+        <div className="h-48 overflow-hidden">
+          <img
+            src={productImage}
+            alt={product.name}
+            className="w-full h-full object-cover"
+            onError={handleImageError}
+          />
+        </div>
         <div className="p-5">
           <div className="flex justify-between items-start">
             <h3 className="text-lg font-semibold text-gray-800">
