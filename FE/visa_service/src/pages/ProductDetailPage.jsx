@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductById } from "../store/productSlice";
 import { addToCart, addItemToCart } from "../store/cartSlice";
-import { products as mockProducts } from "../data/products";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -16,8 +15,7 @@ const ProductDetailPage = () => {
   const [quantity, setQuantity] = useState(1);
 
   // Find product from API or fallback to mock data
-  const productData =
-    product || mockProducts.find((p) => p.id.toString() === id);
+  const productData = product;
 
   useEffect(() => {
     if (isOnline) {

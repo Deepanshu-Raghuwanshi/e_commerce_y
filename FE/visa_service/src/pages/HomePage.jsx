@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ProductCard from "../components/ProductCard";
 import { fetchProducts } from "../store/productSlice";
-import { products as mockProducts } from "../data/products"; // Fallback data
+// import { products as mockProducts } from "../data/products"; // Fallback data
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -22,24 +22,12 @@ const HomePage = () => {
   const useApiData = products && products.length > 0;
 
   // Get categories from API or mock data
-  const allCategories =
-    useApiData && apiCategories.length > 0
-      ? apiCategories
-      : [...new Set(mockProducts.map((product) => product.category))];
+  const allCategories = apiCategories;
 
   const categories = ["All", ...allCategories];
 
   // Get products to display based on selected category
   const getProductsToDisplay = () => {
-    if (!useApiData) {
-      // Use mock data if API data is not available
-      return selectedCategory === "All"
-        ? mockProducts
-        : mockProducts.filter(
-            (product) => product.category === selectedCategory
-          );
-    }
-
     // Use API data
     if (selectedCategory === "All") {
       return products;
