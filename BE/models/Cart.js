@@ -52,6 +52,18 @@ const cartSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    couponCode: {
+      type: String,
+      default: null,
+    },
+    couponApplied: {
+      type: Boolean,
+      default: false,
+    },
+    discountEligible: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -9,6 +9,7 @@ import {
 } from "../store/cartSlice";
 import { createCheckout } from "../store/checkoutSlice";
 import { useState } from "react";
+import CouponSection from "./CouponSection";
 
 const CartDrawer = ({ isOpen, onClose, onCheckout }) => {
   const dispatch = useDispatch();
@@ -18,6 +19,8 @@ const CartDrawer = ({ isOpen, onClose, onCheckout }) => {
     discountRate,
     discountAmount,
     totalAmount,
+    discountEligible,
+    couponApplied,
     loading,
     isOnline,
   } = useSelector((state) => state.cart);
@@ -382,6 +385,9 @@ const CartDrawer = ({ isOpen, onClose, onCheckout }) => {
 
         {items.length > 0 && !isCheckoutComplete && !customerInfo.showForm && (
           <div className="border-t p-4 space-y-4">
+            {/* Coupon Section */}
+            <CouponSection />
+
             <div className="space-y-1">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal:</span>
@@ -390,15 +396,22 @@ const CartDrawer = ({ isOpen, onClose, onCheckout }) => {
                 </span>
               </div>
 
-              {discountRate > 0 && (
+              {discountRate > 0 && couponApplied && (
                 <div className="flex justify-between text-green-600">
-                  <span>Bundle Discount (10%):</span>
+                  <span>Coupon Discount (10%):</span>
                   <span>
                     -$
                     {typeof discountAmount === "number"
                       ? discountAmount.toFixed(2)
                       : "0.00"}
                   </span>
+                </div>
+              )}
+
+              {discountEligible && !couponApplied && (
+                <div className="flex justify-between text-blue-600 text-sm">
+                  <span>Potential Savings:</span>
+                  <span>Apply coupon for 10% off!</span>
                 </div>
               )}
 

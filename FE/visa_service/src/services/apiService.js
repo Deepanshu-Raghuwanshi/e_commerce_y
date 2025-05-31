@@ -369,6 +369,38 @@ export const cartApi = {
       throw formattedError;
     }
   },
+
+  // Apply coupon to cart
+  applyCoupon: async (couponCode) => {
+    try {
+      if (!authApi.isAuthenticated()) {
+        throw new Error("Authentication required to apply coupon");
+      }
+
+      const response = await apiClient.post("/cart/coupon", {
+        couponCode,
+      });
+      return response.data;
+    } catch (error) {
+      const formattedError = handleApiError(error);
+      throw formattedError;
+    }
+  },
+
+  // Remove coupon from cart
+  removeCoupon: async () => {
+    try {
+      if (!authApi.isAuthenticated()) {
+        throw new Error("Authentication required to remove coupon");
+      }
+
+      const response = await apiClient.delete("/cart/coupon");
+      return response.data;
+    } catch (error) {
+      const formattedError = handleApiError(error);
+      throw formattedError;
+    }
+  },
 };
 
 // Checkout API endpoints

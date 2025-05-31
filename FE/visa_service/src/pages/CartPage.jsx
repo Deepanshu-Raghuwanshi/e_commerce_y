@@ -7,7 +7,9 @@ import {
   removeItemFromCart,
   updateCartItemQuantity,
   fetchCart,
+  clearCartError,
 } from "../store/cartSlice";
+import CouponSection from "../components/CouponSection";
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -18,8 +20,11 @@ const CartPage = () => {
     discountRate,
     discountAmount,
     totalAmount,
+    discountEligible,
+    couponApplied,
     loading,
     isOnline,
+    error,
   } = useSelector((state) => state.cart);
 
   // Fetch cart when component mounts to ensure we have the latest data
@@ -28,6 +33,16 @@ const CartPage = () => {
       dispatch(fetchCart());
     }
   }, [dispatch, isOnline]);
+
+  // Clear any cart errors when component mounts
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        dispatch(clearCartError());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, dispatch]);
 
   const handleRemoveItem = (id) => {
     if (isOnline) {
@@ -57,6 +72,32 @@ const CartPage = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Your Cart</h1>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="flex items-center">
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>{error}</span>
+              <button
+                onClick={() => dispatch(clearCartError())}
+                className="ml-auto text-red-500 hover:text-red-700"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
 
         {loading ? (
           <div className="flex justify-center items-center py-12">
@@ -165,6 +206,9 @@ const CartPage = () => {
             </div>
 
             <div className="md:col-span-1">
+              {/* Coupon Section */}
+              <CouponSection />
+
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
                 <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
                 <div className="space-y-2 mb-4">
@@ -178,15 +222,22 @@ const CartPage = () => {
                     </span>
                   </div>
 
-                  {discountRate > 0 && (
+                  {discountRate > 0 && couponApplied && (
                     <div className="flex justify-between text-green-600">
-                      <span>Bundle Discount (10%):</span>
+                      <span>Coupon Discount (10%):</span>
                       <span>
                         -$
                         {typeof discountAmount === "number"
                           ? discountAmount.toFixed(2)
                           : "0.00"}
                       </span>
+                    </div>
+                  )}
+
+                  {discountEligible && !couponApplied && (
+                    <div className="flex justify-between text-blue-600 text-sm">
+                      <span>Potential Savings:</span>
+                      <span>Apply coupon for 10% off!</span>
                     </div>
                   )}
 

@@ -68,6 +68,30 @@ export const clearCartItems = createAsyncThunk(
   }
 );
 
+export const applyCouponToCart = createAsyncThunk(
+  "cart/applyCouponToCart",
+  async (couponCode, { rejectWithValue }) => {
+    try {
+      const response = await cartApi.applyCoupon(couponCode);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to apply coupon");
+    }
+  }
+);
+
+export const removeCouponFromCart = createAsyncThunk(
+  "cart/removeCouponFromCart",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await cartApi.removeCoupon();
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to remove coupon");
+    }
+  }
+);
+
 // Local storage functions for fallback
 const loadCartFromStorage = () => {
   if (typeof window !== "undefined") {
@@ -83,24 +107,29 @@ const saveCartToStorage = (cart) => {
   }
 };
 
-const calculateDiscount = (items) => {
+const calculateDiscount = (items, couponApplied = false) => {
   // Check if there are at least 2 items from different categories
   const categories = new Set();
   items.forEach((item) => categories.add(item.category));
 
-  if (categories.size >= 2) {
-    // Apply 10% discount
-    return 0.1;
+  const discountEligible = categories.size >= 2;
+
+  if (discountEligible && couponApplied) {
+    // Apply 10% discount only if coupon is applied
+    return { discountRate: 0.1, discountEligible: true };
   }
-  return 0;
+  return { discountRate: 0, discountEligible };
 };
 
-const calculateTotals = (items) => {
+const calculateTotals = (items, couponApplied = false) => {
   const subtotal = items.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
-  const discountRate = calculateDiscount(items);
+  const { discountRate, discountEligible } = calculateDiscount(
+    items,
+    couponApplied
+  );
   const discountAmount = subtotal * discountRate;
   const totalAmount = subtotal - discountAmount;
 
@@ -109,6 +138,7 @@ const calculateTotals = (items) => {
     discountRate,
     discountAmount,
     totalAmount,
+    discountEligible,
   };
 };
 
@@ -122,6 +152,9 @@ const cartSlice = createSlice({
     discountRate: initialState.discountRate || 0,
     discountAmount: initialState.discountAmount || 0,
     totalAmount: initialState.totalAmount || 0,
+    discountEligible: initialState.discountEligible || false,
+    couponApplied: initialState.couponApplied || false,
+    couponCode: initialState.couponCode || null,
     loading: false,
     error: null,
     isOnline: true, // Flag to track online/offline status
@@ -138,22 +171,24 @@ const cartSlice = createSlice({
         state.items.push({ ...action.payload, quantity: 1 });
       }
 
-      const totals = calculateTotals(state.items);
+      const totals = calculateTotals(state.items, state.couponApplied);
       state.subtotal = totals.subtotal;
       state.discountRate = totals.discountRate;
       state.discountAmount = totals.discountAmount;
       state.totalAmount = totals.totalAmount;
+      state.discountEligible = totals.discountEligible;
 
       saveCartToStorage(state);
     },
     removeFromCart: (state, action) => {
       state.items = state.items.filter((item) => item.id !== action.payload);
 
-      const totals = calculateTotals(state.items);
+      const totals = calculateTotals(state.items, state.couponApplied);
       state.subtotal = totals.subtotal;
       state.discountRate = totals.discountRate;
       state.discountAmount = totals.discountAmount;
       state.totalAmount = totals.totalAmount;
+      state.discountEligible = totals.discountEligible;
 
       saveCartToStorage(state);
     },
@@ -165,11 +200,12 @@ const cartSlice = createSlice({
         item.quantity = Math.max(1, quantity);
       }
 
-      const totals = calculateTotals(state.items);
+      const totals = calculateTotals(state.items, state.couponApplied);
       state.subtotal = totals.subtotal;
       state.discountRate = totals.discountRate;
       state.discountAmount = totals.discountAmount;
       state.totalAmount = totals.totalAmount;
+      state.discountEligible = totals.discountEligible;
 
       saveCartToStorage(state);
     },
@@ -179,6 +215,9 @@ const cartSlice = createSlice({
       state.discountRate = 0;
       state.discountAmount = 0;
       state.totalAmount = 0;
+      state.discountEligible = false;
+      state.couponApplied = false;
+      state.couponCode = null;
 
       saveCartToStorage(state);
     },
@@ -223,11 +262,14 @@ const cartSlice = createSlice({
             })
             .filter(Boolean); // Remove any null items
 
-          // Update total amount
+          // Update cart state with server data
           state.totalAmount = cartData.totalPrice || 0;
+          state.couponApplied = cartData.couponApplied || false;
+          state.couponCode = cartData.couponCode || null;
+          state.discountEligible = cartData.discountEligible || false;
 
           // Calculate other values
-          const totals = calculateTotals(state.items);
+          const totals = calculateTotals(state.items, state.couponApplied);
           state.subtotal = totals.subtotal;
           state.discountRate = totals.discountRate;
           state.discountAmount = totals.discountAmount;
@@ -277,11 +319,14 @@ const cartSlice = createSlice({
             })
             .filter(Boolean); // Remove any null items
 
-          // Update total amount
+          // Update cart state with server data
           state.totalAmount = cartData.totalPrice || 0;
+          state.couponApplied = cartData.couponApplied || false;
+          state.couponCode = cartData.couponCode || null;
+          state.discountEligible = cartData.discountEligible || false;
 
           // Calculate other values
-          const totals = calculateTotals(state.items);
+          const totals = calculateTotals(state.items, state.couponApplied);
           state.subtotal = totals.subtotal;
           state.discountRate = totals.discountRate;
           state.discountAmount = totals.discountAmount;
@@ -331,11 +376,14 @@ const cartSlice = createSlice({
             })
             .filter(Boolean); // Remove any null items
 
-          // Update total amount
+          // Update cart state with server data
           state.totalAmount = cartData.totalPrice || 0;
+          state.couponApplied = cartData.couponApplied || false;
+          state.couponCode = cartData.couponCode || null;
+          state.discountEligible = cartData.discountEligible || false;
 
           // Calculate other values
-          const totals = calculateTotals(state.items);
+          const totals = calculateTotals(state.items, state.couponApplied);
           state.subtotal = totals.subtotal;
           state.discountRate = totals.discountRate;
           state.discountAmount = totals.discountAmount;
@@ -385,11 +433,14 @@ const cartSlice = createSlice({
             })
             .filter(Boolean); // Remove any null items
 
-          // Update total amount
+          // Update cart state with server data
           state.totalAmount = cartData.totalPrice || 0;
+          state.couponApplied = cartData.couponApplied || false;
+          state.couponCode = cartData.couponCode || null;
+          state.discountEligible = cartData.discountEligible || false;
 
           // Calculate other values
-          const totals = calculateTotals(state.items);
+          const totals = calculateTotals(state.items, state.couponApplied);
           state.subtotal = totals.subtotal;
           state.discountRate = totals.discountRate;
           state.discountAmount = totals.discountAmount;
@@ -419,12 +470,117 @@ const cartSlice = createSlice({
         state.discountRate = 0;
         state.discountAmount = 0;
         state.totalAmount = 0;
+        state.discountEligible = false;
+        state.couponApplied = false;
+        state.couponCode = null;
 
         saveCartToStorage(state);
       })
       .addCase(clearCartItems.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to clear cart";
+      })
+
+      // Apply coupon
+      .addCase(applyCouponToCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(applyCouponToCart.fulfilled, (state, action) => {
+        state.loading = false;
+
+        // Handle the response structure
+        const cartData = action.payload.data || action.payload.cart || {};
+
+        if (cartData && cartData.items && Array.isArray(cartData.items)) {
+          state.items = cartData.items
+            .map((item) => {
+              if (!item.product) {
+                console.warn("Item missing product data:", item);
+                return null;
+              }
+
+              return {
+                id: item.product._id,
+                name: item.product.name,
+                price: item.product.price,
+                category: item.product.category,
+                quantity: item.quantity,
+                image: item.product.image,
+                description: item.product.description,
+              };
+            })
+            .filter(Boolean);
+
+          // Update cart state with server data
+          state.totalAmount = cartData.totalPrice || 0;
+          state.couponApplied = cartData.couponApplied || false;
+          state.couponCode = cartData.couponCode || null;
+          state.discountEligible = cartData.discountEligible || false;
+
+          // Calculate other values
+          const totals = calculateTotals(state.items, state.couponApplied);
+          state.subtotal = totals.subtotal;
+          state.discountRate = totals.discountRate;
+          state.discountAmount = totals.discountAmount;
+
+          saveCartToStorage(state);
+        }
+      })
+      .addCase(applyCouponToCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to apply coupon";
+      })
+
+      // Remove coupon
+      .addCase(removeCouponFromCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(removeCouponFromCart.fulfilled, (state, action) => {
+        state.loading = false;
+
+        // Handle the response structure
+        const cartData = action.payload.data || action.payload.cart || {};
+
+        if (cartData && cartData.items && Array.isArray(cartData.items)) {
+          state.items = cartData.items
+            .map((item) => {
+              if (!item.product) {
+                console.warn("Item missing product data:", item);
+                return null;
+              }
+
+              return {
+                id: item.product._id,
+                name: item.product.name,
+                price: item.product.price,
+                category: item.product.category,
+                quantity: item.quantity,
+                image: item.product.image,
+                description: item.product.description,
+              };
+            })
+            .filter(Boolean);
+
+          // Update cart state with server data
+          state.totalAmount = cartData.totalPrice || 0;
+          state.couponApplied = cartData.couponApplied || false;
+          state.couponCode = cartData.couponCode || null;
+          state.discountEligible = cartData.discountEligible || false;
+
+          // Calculate other values
+          const totals = calculateTotals(state.items, state.couponApplied);
+          state.subtotal = totals.subtotal;
+          state.discountRate = totals.discountRate;
+          state.discountAmount = totals.discountAmount;
+
+          saveCartToStorage(state);
+        }
+      })
+      .addCase(removeCouponFromCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to remove coupon";
       });
   },
 });

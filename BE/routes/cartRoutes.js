@@ -6,6 +6,8 @@ const {
   removeFromCart,
   updateCartItem,
   clearCart,
+  applyCoupon,
+  removeCoupon,
 } = require("../controllers/cartController");
 const auth = require("../middleware/auth");
 
@@ -20,6 +22,12 @@ router.post("/", addToCart);
 
 // PUT /api/cart - Update item quantity in cart
 router.put("/", updateCartItem);
+
+// POST /api/cart/coupon - Apply coupon to cart
+router.post("/coupon", applyCoupon);
+
+// DELETE /api/cart/coupon - Remove coupon from cart
+router.delete("/coupon", removeCoupon);
 
 // DELETE /api/cart/clear - Clear the entire cart
 router.delete("/clear", clearCart);
