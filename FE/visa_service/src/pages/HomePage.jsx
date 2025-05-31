@@ -36,7 +36,7 @@ const HomePage = () => {
   const displayProducts = getProductsToDisplay();
 
   // Get featured products (first 8 products)
-  const featuredProducts = products?.slice(0, 8) || [];
+  const featuredProducts = products?.slice(0, 9) || [];
 
   useEffect(() => {
     const fetchData = async () => {

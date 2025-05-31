@@ -3,6 +3,7 @@ import ProductCard from "./ProductCard";
 
 const ProductCarousel = ({ products, title }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const itemsPerView = 3; // Fixed to always show 3 products per slide
 
   // Calculate total slides needed
@@ -20,11 +21,11 @@ const ProductCarousel = ({ products, title }) => {
   };
 
   useEffect(() => {
-    if (totalSlides <= 1) return;
+    if (totalSlides <= 1 || isHovered) return;
 
     const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
-  }, [totalSlides, maxIndex]);
+  }, [totalSlides, maxIndex, isHovered]);
 
   // Reset currentIndex if it's out of bounds
   useEffect(() => {
@@ -45,7 +46,11 @@ const ProductCarousel = ({ products, title }) => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           {products.map((product, index) => (
             <ProductCard
               key={product.id || product._id || index}
@@ -111,7 +116,11 @@ const ProductCarousel = ({ products, title }) => {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl">
+      <div
+        className="overflow-hidden rounded-xl"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <div
           className="flex transition-transform duration-500 ease-in-out"
           style={{
