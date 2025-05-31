@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ProductCard from "../components/ProductCard";
+import ProductCarousel from "../components/ProductCarousel";
 import { fetchProducts } from "../store/productSlice";
-// import { products as mockProducts } from "../data/products"; // Fallback data
 
 const HomePage = () => {
   const dispatch = useDispatch();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Get data from Redux store
   const {
     products,
     productsByCategory,
@@ -18,38 +17,31 @@ const HomePage = () => {
     error,
   } = useSelector((state) => state.products);
 
-  // Determine if we should use API data or fallback to mock data
   const useApiData = products && products.length > 0;
-
-  // Get categories from API or mock data
   const allCategories = apiCategories;
-
   const categories = ["All", ...allCategories];
 
-  // Get products to display based on selected category
   const getProductsToDisplay = () => {
-    // Use API data
     if (selectedCategory === "All") {
       return products;
     }
 
-    // If we have the new data structure with productsByCategory
     if (productsByCategory && productsByCategory[selectedCategory]) {
       return productsByCategory[selectedCategory];
     }
 
-    // Fallback to filtering the flattened products array
     return products.filter((product) => product.category === selectedCategory);
   };
 
   const displayProducts = getProductsToDisplay();
 
-  // Fetch products on component mount
+  // Get featured products (first 8 products)
+  const featuredProducts = products?.slice(0, 8) || [];
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch products (which now includes categories)
         await dispatch(fetchProducts());
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -61,112 +53,203 @@ const HomePage = () => {
     fetchData();
   }, [dispatch]);
 
-  // Handle category change
+  const scrollToProducts = () => {
+    const productsSection = document.getElementById("products-section");
+    if (productsSection) {
+      productsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    window.scrollTo(0, 0); // Scroll to top when changing category
+    // Smooth scroll to products section instead of top
+    setTimeout(() => scrollToProducts(), 100);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Welcome to ShopHub
-        </h1>
-        <p className="text-gray-600 max-w-3xl">
-          Discover amazing products across multiple categories including
-          watches, toys, sports equipment, dresses, jewelry and more! Add
-          multiple items to your cart and get a 10% discount when you purchase
-          products from different categories!
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      {/* Hero Section */}
+      <div className="relative pt-20 lg:pt-24 pb-16 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 animate-in slide-in-from-bottom-4 duration-1000">
+              Welcome to{" "}
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 bg-clip-text text-transparent">
+                ShopHub
+              </span>
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed animate-in slide-in-from-bottom-4 duration-1000 delay-200">
+              Discover amazing products across multiple categories including
+              watches, toys, sports equipment, dresses, jewelry and more!
+              <span className="font-semibold text-blue-600">
+                {" "}
+                Get 10% off
+              </span>{" "}
+              when you purchase products from different categories!
+            </p>
 
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => handleCategoryChange(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                selectedCategory === category
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-          <p>Error loading products. Using fallback data.</p>
-        </div>
-      )}
-
-      {loading || isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : (
-        <>
-          {selectedCategory === "All" && useApiData && productsByCategory ? (
-            // Display products by category when "All" is selected and we have the new data structure
-            <>
-              {apiCategories.map((category) => {
-                const categoryProducts = productsByCategory[category] || [];
-
-                if (categoryProducts.length === 0) {
-                  return null;
-                }
-
-                return (
-                  <div key={category} className="mb-10">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                      {category}
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                      {categoryProducts.map((product) => (
-                        <ProductCard
-                          key={product._id}
-                          product={{
-                            id: product._id,
-                            name: product.name,
-                            description: product.description,
-                            price: product.price,
-                            category: product.category,
-                            variant: product.variant,
-                            image: product.image,
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </>
-          ) : (
-            // Display filtered products for a specific category or when using old data structure
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {displayProducts.map((product) => (
-                <ProductCard
-                  key={product.id || product._id}
-                  product={{
-                    id: product.id || product._id,
-                    name: product.name,
-                    description: product.description,
-                    price: product.price,
-                    category: product.category,
-                    variant: product.variant,
-                    image: product.image,
-                  }}
-                />
-              ))}
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 animate-in slide-in-from-bottom-4 duration-1000 delay-400">
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-200">
+                <div className="text-2xl font-bold text-blue-600">
+                  {products?.length || 0}+
+                </div>
+                <div className="text-sm text-gray-600">Products</div>
+              </div>
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-200">
+                <div className="text-2xl font-bold text-purple-600">
+                  {allCategories?.length || 0}+
+                </div>
+                <div className="text-sm text-gray-600">Categories</div>
+              </div>
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-200">
+                <div className="text-2xl font-bold text-green-600">10%</div>
+                <div className="text-sm text-gray-600">Bundle Discount</div>
+              </div>
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-200">
+                <div className="text-2xl font-bold text-orange-600">Free</div>
+                <div className="text-sm text-gray-600">Shipping</div>
+              </div>
             </div>
-          )}
-        </>
-      )}
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        {/* Featured Products Carousel */}
+        {featuredProducts.length > 0 && (
+          <div className="mb-16">
+            <ProductCarousel
+              products={featuredProducts}
+              title="✨ Featured Products"
+            />
+          </div>
+        )}
+
+        {/* Category Filter */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Shop by Category
+          </h2>
+          <div className="flex flex-wrap justify-center gap-3">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => handleCategoryChange(category)}
+                className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+                  selectedCategory === category
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105"
+                    : "bg-white text-gray-700 hover:bg-gray-50 shadow-md border border-gray-200"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-8 animate-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 mr-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <p>Error loading products. Using fallback data.</p>
+            </div>
+          </div>
+        )}
+
+        {loading || isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+              <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500 opacity-20"></div>
+            </div>
+          </div>
+        ) : (
+          <div id="products-section">
+            {selectedCategory === "All" && useApiData && productsByCategory ? (
+              <>
+                {allCategories.map((category) => {
+                  const categoryProducts = productsByCategory[category] || [];
+
+                  if (categoryProducts.length === 0) {
+                    return null;
+                  }
+
+                  return (
+                    <div key={category} className="mb-16">
+                      <ProductCarousel
+                        products={categoryProducts.slice(0, 9)}
+                        title={`🏷️ ${category}`}
+                      />
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+                  {selectedCategory === "All"
+                    ? "All Products"
+                    : selectedCategory}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+                  {displayProducts.map((product, index) => (
+                    <div
+                      key={product.id || product._id}
+                      className="animate-in slide-in-from-bottom-4 duration-500"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <ProductCard
+                        product={{
+                          id: product.id || product._id,
+                          name: product.name,
+                          description: product.description,
+                          price: product.price,
+                          category: product.category,
+                          variant: product.variant,
+                          image: product.image,
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Newsletter Section */}
+        <div className="mt-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 lg:p-12 text-center text-white">
+          <h3 className="text-2xl lg:text-3xl font-bold mb-4">
+            Stay Updated with Our Latest Offers!
+          </h3>
+          <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+            Subscribe to our newsletter and be the first to know about new
+            products, exclusive deals, and special discounts.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+            />
+            <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors duration-200">
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
