@@ -69,17 +69,12 @@ const CheckoutPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Process checkout - no need to pass cart ID or customer info
-    // as the backend will use the authenticated user's cart
     dispatch(processCheckout());
   };
 
   // Effect to clear cart when checkout is complete
   useEffect(() => {
     if (checkoutComplete && items.length > 0) {
-      // Clear cart after successful checkout with a slight delay
-      // to ensure the order details are saved
       const timer = setTimeout(() => {
         if (isOnline) {
           dispatch(clearCartItems());
@@ -94,99 +89,138 @@ const CheckoutPage = () => {
 
   if (checkoutComplete) {
     return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <svg
-                className="w-8 h-8 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-blue-50 py-16 px-4">
+        <div className="container mx-auto max-w-4xl">
+          {/* Success Animation */}
+          <div className="text-center mb-8 animate-fade-in">
+            <div className="relative inline-flex items-center justify-center w-24 h-24 mb-6">
+              <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full animate-pulse"></div>
+              <div className="relative bg-white rounded-full p-6 shadow-lg">
+                <svg
+                  className="w-12 h-12 text-green-600 animate-bounce"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="3"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+              </div>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Order Confirmed!
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Thank you for your purchase. Your order has been placed
-              successfully.
+
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4">
+              Order Confirmed! 🎉
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Thank you for your purchase! Your order has been placed
+              successfully and we're preparing it for delivery.
             </p>
           </div>
 
           {currentOrder && (
-            <div className="border rounded-lg overflow-hidden mb-6">
-              <div className="bg-gray-50 p-4 border-b">
-                <div className="flex flex-wrap justify-between items-center">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 border border-gray-100">
+              {/* Order Header */}
+              <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-800">
-                      Order Summary
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Order ID:{" "}
-                      <span className="font-medium">{currentOrder._id}</span>
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Date:{" "}
-                      {new Date(currentOrder.createdAt).toLocaleDateString()}
-                    </p>
+                    <h2 className="text-2xl font-bold mb-2">Order Summary</h2>
+                    <div className="space-y-1">
+                      <p className="text-green-100">
+                        Order ID:{" "}
+                        <span className="font-mono font-semibold text-white">
+                          {currentOrder._id}
+                        </span>
+                      </p>
+                      <p className="text-green-100">
+                        Date:{" "}
+                        <span className="font-semibold text-white">
+                          {new Date(currentOrder.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                  <div className="mt-2 sm:mt-0">
-                    <p className="text-sm text-gray-600">
-                      Status:{" "}
-                      <span className="font-medium capitalize">
-                        {currentOrder.status || "pending"}
+                  <div className="text-right">
+                    <div className="inline-flex items-center px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">
+                      <div className="w-2 h-2 bg-green-300 rounded-full mr-2 animate-pulse"></div>
+                      <span className="font-semibold capitalize">
+                        {currentOrder.status || "Processing"}
                       </span>
-                    </p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4">
-                <h4 className="font-medium text-gray-800 mb-3">Items</h4>
-                <div className="divide-y">
-                  {currentOrder.items && currentOrder.items.length > 0
-                    ? currentOrder.items.map((item, index) => (
-                        <div key={index} className="py-3 flex justify-between">
-                          <div>
-                            <p className="font-medium">{item.name}</p>
-                            <p className="text-sm text-gray-600">
-                              Quantity: {item.quantity}
-                            </p>
-                          </div>
-                          <p className="font-medium">
-                            ${(item.price * item.quantity).toFixed(2)}
-                          </p>
+              {/* Order Items */}
+              <div className="p-6">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                  <svg
+                    className="w-5 h-5 mr-2 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                    ></path>
+                  </svg>
+                  Items Ordered
+                </h3>
+
+                <div className="space-y-4">
+                  {(currentOrder.items && currentOrder.items.length > 0
+                    ? currentOrder.items
+                    : items
+                  ).map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800 mb-1">
+                          {item.name}
+                        </h4>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <span className="bg-white px-2 py-1 rounded-md border mr-2">
+                            Qty: {item.quantity}
+                          </span>
+                          <span className="text-gray-500">
+                            ${item.price?.toFixed(2)} each
+                          </span>
                         </div>
-                      ))
-                    : items.map((item, index) => (
-                        <div key={index} className="py-3 flex justify-between">
-                          <div>
-                            <p className="font-medium">{item.name}</p>
-                            <p className="text-sm text-gray-600">
-                              Quantity: {item.quantity}
-                            </p>
-                          </div>
-                          <p className="font-medium">
-                            ${(item.price * item.quantity).toFixed(2)}
-                          </p>
-                        </div>
-                      ))}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xl font-bold text-gray-800">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-4 border-t">
-                <div className="flex justify-between items-center font-medium">
-                  <span>Total Amount:</span>
-                  <span className="text-lg">
+              {/* Order Total */}
+              <div className="bg-gray-50 p-6 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-xl font-semibold text-gray-700">
+                    Total Amount:
+                  </span>
+                  <span className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                     $
                     {currentOrder.totalPrice &&
                     typeof currentOrder.totalPrice === "number"
@@ -200,13 +234,32 @@ const CheckoutPage = () => {
             </div>
           )}
 
-          <div className="text-center">
+          {/* Action Buttons */}
+          <div className="text-center space-y-4">
             <button
               onClick={() => navigate("/")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 2.5M7 13l2.5 2.5"
+                ></path>
+              </svg>
               Continue Shopping
             </button>
+
+            <p className="text-sm text-gray-500 max-w-md mx-auto">
+              You'll receive an email confirmation shortly with tracking
+              information.
+            </p>
           </div>
         </div>
       </div>
@@ -214,31 +267,71 @@ const CheckoutPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout</h1>
+    <div className="min-h-screen bg-gray-50 py-16">
+      <div className="container mx-auto px-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+              Checkout
+            </h1>
+            <p className="text-gray-600">Complete your order details below</p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h2 className="text-lg font-semibold mb-4">
-                Customer Information
-              </h2>
-
-              {error && (
-                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                  <p>{error}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Form Section */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100">
+                <div className="flex items-center mb-6">
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                    <svg
+                      className="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Customer Information
+                  </h2>
                 </div>
-              )}
 
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-4">
+                {error && (
+                  <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r-lg">
+                    <div className="flex items-center">
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                      </svg>
+                      <p className="font-medium">{error}</p>
+                    </div>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Name Field */}
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      Full Name
+                      Full Name *
                     </label>
                     <input
                       type="text"
@@ -246,18 +339,20 @@ const CheckoutPage = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      placeholder="Enter your full name"
                       required
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Email and Phone */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label
                         htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
                       >
-                        Email Address
+                        Email Address *
                       </label>
                       <input
                         type="email"
@@ -265,7 +360,8 @@ const CheckoutPage = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        placeholder="your@email.com"
                         required
                       />
                     </div>
@@ -273,9 +369,9 @@ const CheckoutPage = () => {
                     <div>
                       <label
                         htmlFor="phone"
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
                       >
-                        Phone Number
+                        Phone Number *
                       </label>
                       <input
                         type="tel"
@@ -283,120 +379,155 @@ const CheckoutPage = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        placeholder="+1 (555) 123-4567"
                         required
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label
-                      htmlFor="street"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Street Address
-                    </label>
-                    <input
-                      type="text"
-                      id="street"
-                      name="address.street"
-                      value={formData.address.street}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
+                  {/* Address Section */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                      <svg
+                        className="w-5 h-5 mr-2 text-gray-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        ></path>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        ></path>
+                      </svg>
+                      Shipping Address
+                    </h3>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label
+                          htmlFor="street"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Street Address *
+                        </label>
+                        <input
+                          type="text"
+                          id="street"
+                          name="address.street"
+                          value={formData.address.street}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                          placeholder="123 Main Street"
+                          required
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            htmlFor="city"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            City *
+                          </label>
+                          <input
+                            type="text"
+                            id="city"
+                            name="address.city"
+                            value={formData.address.city}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                            placeholder="New York"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="state"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            State/Province *
+                          </label>
+                          <input
+                            type="text"
+                            id="state"
+                            name="address.state"
+                            value={formData.address.state}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                            placeholder="NY"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            htmlFor="zipCode"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            ZIP/Postal Code *
+                          </label>
+                          <input
+                            type="text"
+                            id="zipCode"
+                            name="address.zipCode"
+                            value={formData.address.zipCode}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                            placeholder="10001"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="country"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            Country *
+                          </label>
+                          <input
+                            type="text"
+                            id="country"
+                            name="address.country"
+                            value={formData.address.country}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                            placeholder="United States"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor="city"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        City
-                      </label>
-                      <input
-                        type="text"
-                        id="city"
-                        name="address.city"
-                        value={formData.address.city}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="state"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        State/Province
-                      </label>
-                      <input
-                        type="text"
-                        id="state"
-                        name="address.state"
-                        value={formData.address.state}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor="zipCode"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        ZIP/Postal Code
-                      </label>
-                      <input
-                        type="text"
-                        id="zipCode"
-                        name="address.zipCode"
-                        value={formData.address.zipCode}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="country"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Country
-                      </label>
-                      <input
-                        type="text"
-                        id="country"
-                        name="address.country"
-                        value={formData.address.country}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="pt-4">
+                  {/* Submit Button */}
+                  <div className="pt-6">
                     <button
                       type="submit"
-                      className={`w-full ${
+                      className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl ${
                         loading
-                          ? "bg-blue-400 cursor-not-allowed"
-                          : "bg-blue-600 hover:bg-blue-700"
-                      } text-white py-2 rounded-md transition flex justify-center items-center`}
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                      }`}
                       disabled={loading}
                     >
                       {loading ? (
-                        <>
+                        <div className="flex items-center justify-center">
                           <svg
-                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -416,76 +547,113 @@ const CheckoutPage = () => {
                             ></path>
                           </svg>
                           Processing Order...
-                        </>
+                        </div>
                       ) : (
-                        "Place Order"
+                        <div className="flex items-center justify-center">
+                          <svg
+                            className="w-5 h-5 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            ></path>
+                          </svg>
+                          Place Order
+                        </div>
                       )}
                     </button>
                   </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
-          </div>
 
-          <div className="md:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
-              <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
-
-              <div className="space-y-4">
-                <div className="max-h-60 overflow-y-auto">
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center py-2 border-b"
+            {/* Order Summary Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-6 border border-gray-100">
+                <div className="flex items-center mb-6">
+                  <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                    <svg
+                      className="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{item.name}</p>
-                        <p className="text-xs text-gray-500">
-                          Qty: {item.quantity}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      ></path>
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Order Summary
+                  </h2>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="max-h-64 overflow-y-auto space-y-3">
+                    {items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center p-3 bg-gray-50 rounded-xl"
+                      >
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-800 text-sm">
+                            {item.name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Qty: {item.quantity} × ${item.price?.toFixed(2)}
+                          </p>
+                        </div>
+                        <p className="font-bold text-gray-800">
+                          $
+                          {typeof item.price === "number" &&
+                          typeof item.quantity === "number"
+                            ? (item.price * item.quantity).toFixed(2)
+                            : "0.00"}
                         </p>
                       </div>
-                      <p className="text-sm font-medium">
-                        $
-                        {typeof item.price === "number" &&
-                        typeof item.quantity === "number"
-                          ? (item.price * item.quantity).toFixed(2)
-                          : "0.00"}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-2 pt-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span>
-                      $
-                      {typeof subtotal === "number"
-                        ? subtotal.toFixed(2)
-                        : "0.00"}
-                    </span>
+                    ))}
                   </div>
 
-                  {discountRate > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
-                      <span>Bundle Discount (10%)</span>
+                  <div className="border-t pt-4 space-y-3">
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>Subtotal</span>
                       <span>
-                        -$
-                        {typeof discountAmount === "number"
-                          ? discountAmount.toFixed(2)
+                        $
+                        {typeof subtotal === "number"
+                          ? subtotal.toFixed(2)
                           : "0.00"}
                       </span>
                     </div>
-                  )}
 
-                  <div className="flex justify-between font-semibold text-base pt-2 border-t mt-2">
-                    <span>Total</span>
-                    <span>
-                      $
-                      {typeof totalAmount === "number"
-                        ? totalAmount.toFixed(2)
-                        : "0.00"}
-                    </span>
+                    {discountRate > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span>Bundle Discount (10%)</span>
+                        <span>
+                          -$
+                          {typeof discountAmount === "number"
+                            ? discountAmount.toFixed(2)
+                            : "0.00"}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-center font-bold text-lg pt-3 border-t">
+                      <span className="text-gray-800">Total</span>
+                      <span className="text-2xl bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                        $
+                        {typeof totalAmount === "number"
+                          ? totalAmount.toFixed(2)
+                          : "0.00"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
