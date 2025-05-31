@@ -70,12 +70,14 @@ const HomePage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Visa Services</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          Welcome to ShopHub
+        </h1>
         <p className="text-gray-600 max-w-3xl">
-          Choose from our range of professional visa services to make your
-          application process smooth and successful. Add multiple services to
-          your cart and get a 10% discount when you bundle services from
-          different categories!
+          Discover amazing products across multiple categories including
+          watches, toys, sports equipment, dresses, jewelry and more! Add
+          multiple items to your cart and get a 10% discount when you purchase
+          products from different categories!
         </p>
       </div>
 

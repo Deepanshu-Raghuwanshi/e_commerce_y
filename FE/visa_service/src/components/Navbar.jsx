@@ -45,7 +45,7 @@ const Navbar = () => {
           to="/"
           className="text-xl font-bold hover:text-blue-100 transition"
         >
-          Visa Services
+          ShopHub
         </Link>
 
         <div className="flex items-center space-x-4">

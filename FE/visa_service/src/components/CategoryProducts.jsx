@@ -84,7 +84,7 @@ const CategoryProducts = () => {
 
   return (
     <div className="category-products">
-      <h1>Our Visa Services</h1>
+      <h1>Our Products</h1>
 
       {cartError && <div className="error-message">{cartError.message}</div>}
 
@@ -102,7 +102,6 @@ const CategoryProducts = () => {
             category={category}
             products={categoryProducts}
             onAddToCart={handleAddToCart}
-            addingToCartId={addingToCartId}
           />
         );
       })}

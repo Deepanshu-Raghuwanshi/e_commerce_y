@@ -8,44 +8,52 @@ const getAIResponse = (question) => {
 
   // Simple keyword matching for demo purposes
   if (lowerQuestion.includes("discount") || lowerQuestion.includes("bundle")) {
-    return "We offer a 10% discount when you purchase services from 2 or more different categories!";
+    return "We offer a 10% discount when you purchase products from 2 or more different categories!";
   } else if (
-    lowerQuestion.includes("visa") &&
-    lowerQuestion.includes("application")
+    lowerQuestion.includes("watch") ||
+    lowerQuestion.includes("watches")
   ) {
-    return "Our Visa Application Review service provides expert review of your application to ensure accuracy and completeness. It costs $99.99.";
+    return "We have a great collection of watches including luxury, sports, and casual styles. Check out our watches category for the latest models!";
+  } else if (lowerQuestion.includes("toy") || lowerQuestion.includes("toys")) {
+    return "Our toys section features educational toys, action figures, board games, and more for all ages. Perfect for gifts!";
   } else if (
-    lowerQuestion.includes("document") &&
-    (lowerQuestion.includes("verification") ||
-      lowerQuestion.includes("translate"))
+    lowerQuestion.includes("sports") ||
+    lowerQuestion.includes("fitness")
   ) {
-    return "We offer Document Verification for $79.99 and Document Translation for $89.99. Both services ensure your documents meet all requirements.";
-  } else if (lowerQuestion.includes("interview")) {
-    return "Our Interview Preparation service provides one-on-one coaching to prepare you for your visa interview. It costs $129.99.";
+    return "Explore our sports equipment including fitness gear, outdoor sports items, and athletic accessories for all your sporting needs.";
   } else if (
-    lowerQuestion.includes("express") ||
-    lowerQuestion.includes("processing")
+    lowerQuestion.includes("dress") ||
+    lowerQuestion.includes("clothing") ||
+    lowerQuestion.includes("fashion")
   ) {
-    return "Our Express Processing service expedites your visa application for faster results. It costs $149.99.";
-  } else if (lowerQuestion.includes("appeal")) {
-    return "Our Appeal Assistance service provides professional help with visa application appeals. It costs $199.99.";
+    return "Browse our fashion collection featuring trendy dresses, casual wear, and formal attire for every occasion.";
+  } else if (
+    lowerQuestion.includes("jewelry") ||
+    lowerQuestion.includes("jewellery")
+  ) {
+    return "Discover our stunning jewelry collection including necklaces, earrings, rings, and bracelets to complement your style.";
   } else if (
     lowerQuestion.includes("payment") ||
     lowerQuestion.includes("pay")
   ) {
-    return "We accept all major credit cards, PayPal, and bank transfers for payment.";
+    return "We accept all major credit cards, PayPal, and bank transfers for secure payment processing.";
   } else if (
-    lowerQuestion.includes("refund") ||
-    lowerQuestion.includes("cancel")
+    lowerQuestion.includes("shipping") ||
+    lowerQuestion.includes("delivery")
   ) {
-    return "We offer full refunds if requested within 24 hours of purchase, provided no work has been started on your case.";
+    return "We offer free shipping on orders over $50 and express delivery options. Most orders are delivered within 3-5 business days.";
+  } else if (
+    lowerQuestion.includes("return") ||
+    lowerQuestion.includes("refund")
+  ) {
+    return "We offer hassle-free returns within 30 days of purchase. Items must be in original condition for a full refund.";
   } else if (
     lowerQuestion.includes("contact") ||
     lowerQuestion.includes("support")
   ) {
-    return "You can contact our support team at support@visaservices.com or call us at 1-800-VISA-HELP.";
+    return "You can contact our support team at support@shophub.com or call us at 1-800-SHOP-HUB for any assistance.";
   } else {
-    return "I'm not sure about that. Please ask about our visa services, discounts, or specific products for more information.";
+    return "I'm here to help! Ask me about our products, shipping, returns, or any specific items you're looking for.";
   }
 };
 
@@ -105,7 +113,7 @@ const ChatWidget = () => {
         >
           <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
             <div className="flex items-center">
-              <h3 className="font-medium">Visa Services Assistant</h3>
+              <h3 className="font-medium">ShopHub Assistant</h3>
               {!isOnline && (
                 <span className="ml-2 text-xs bg-yellow-500 text-white px-2 py-0.5 rounded-full">
                   Offline
@@ -190,7 +198,7 @@ const ChatWidget = () => {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Ask about our services..."
+                placeholder="Ask about our products..."
                 className="flex-1 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={loading}
               />
