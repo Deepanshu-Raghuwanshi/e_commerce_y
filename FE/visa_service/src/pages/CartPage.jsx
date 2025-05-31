@@ -4,10 +4,8 @@ import { useNavigate } from "react-router-dom";
 import {
   removeFromCart,
   updateQuantity,
-  clearCart,
   removeItemFromCart,
   updateCartItemQuantity,
-  clearCartItems,
   fetchCart,
 } from "../store/cartSlice";
 
