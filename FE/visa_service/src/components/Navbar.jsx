@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../store/authSlice";
+import { clearCart } from "../store/cartSlice";
+import { showSuccessToast } from "../store/toastSlice";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -44,6 +46,8 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(clearCart()); // Clear cart on logout
+    dispatch(showSuccessToast("Successfully logged out"));
     setDropdownOpen(false);
     navigate("/");
   };

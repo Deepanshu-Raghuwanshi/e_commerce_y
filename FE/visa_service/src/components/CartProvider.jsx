@@ -6,13 +6,14 @@ import { fetchCart } from "../store/cartSlice";
 const CartProvider = () => {
   const dispatch = useDispatch();
   const { isOnline } = useSelector((state) => state.cart);
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
-  // Fetch cart when component mounts
+  // Fetch cart when component mounts, but only if user is authenticated
   useEffect(() => {
-    if (isOnline) {
+    if (isOnline && isAuthenticated) {
       dispatch(fetchCart());
     }
-  }, [dispatch, isOnline]);
+  }, [dispatch, isOnline, isAuthenticated]);
 
   return null;
 };

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { loginUser, clearAuthError } from "../store/authSlice";
+import { fetchCart } from "../store/cartSlice";
+import { showSuccessToast } from "../store/toastSlice";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -20,10 +22,13 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      // Fetch cart after successful login
+      dispatch(fetchCart());
+      dispatch(showSuccessToast("Successfully logged in!"));
       const from = location.state?.from?.pathname || "/";
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, navigate, location, dispatch]);
 
   useEffect(() => {
     return () => {
