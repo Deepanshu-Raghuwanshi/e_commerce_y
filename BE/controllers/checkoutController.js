@@ -1,5 +1,6 @@
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 
 /**
  * Process checkout and create an order
@@ -11,13 +12,32 @@ const checkout = async (req, res) => {
     const userId = req.userId;
 
     // Find the user's cart
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId }).populate("items.product");
 
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({
         success: false,
         message: "Cart is empty",
       });
+    }
+
+    // Check if all products have sufficient quantity
+    for (const item of cart.items) {
+      const product = await Product.findById(item.product);
+
+      if (!product) {
+        return res.status(400).json({
+          success: false,
+          message: `Product ${item.name} no longer exists`,
+        });
+      }
+
+      if (product.quantity < item.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient quantity for ${item.name}. Only ${product.quantity} available.`,
+        });
+      }
     }
 
     // Create a new order from the cart
@@ -32,6 +52,15 @@ const checkout = async (req, res) => {
 
     // Save the order
     await order.save();
+
+    // Update product quantities
+    for (const item of cart.items) {
+      await Product.findByIdAndUpdate(
+        item.product,
+        { $inc: { quantity: -item.quantity } },
+        { new: true }
+      );
+    }
 
     // Clear the cart
     cart.items = [];

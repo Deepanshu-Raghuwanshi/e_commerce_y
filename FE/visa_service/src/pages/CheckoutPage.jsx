@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { processCheckout, resetCheckout } from "../store/checkoutSlice";
 import { clearCart, clearCartItems } from "../store/cartSlice";
+import { fetchProducts } from "../store/productSlice";
 
 const CheckoutPage = () => {
   const dispatch = useDispatch();
@@ -81,6 +82,9 @@ const CheckoutPage = () => {
         } else {
           dispatch(clearCart());
         }
+
+        // Refresh product data to get updated quantities
+        dispatch(fetchProducts());
       }, 500);
 
       return () => clearTimeout(timer);

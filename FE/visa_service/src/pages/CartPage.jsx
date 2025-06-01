@@ -9,6 +9,7 @@ import {
   fetchCart,
   clearCartError,
 } from "../store/cartSlice";
+import { fetchProducts } from "../store/productSlice";
 import { showSuccessToast, showErrorToast } from "../store/toastSlice";
 import CouponSection from "../components/CouponSection";
 
@@ -32,6 +33,8 @@ const CartPage = () => {
   useEffect(() => {
     if (isOnline) {
       dispatch(fetchCart());
+      // Also fetch products to ensure we have the latest quantities
+      dispatch(fetchProducts());
     }
   }, [dispatch, isOnline]);
 
@@ -53,6 +56,9 @@ const CartPage = () => {
       if (isOnline) {
         console.log("Removing item with ID:", id);
         await dispatch(removeItemFromCart(id)).unwrap();
+
+        // Refresh product data to get updated quantities
+        dispatch(fetchProducts());
       } else {
         dispatch(removeFromCart(id));
       }
@@ -71,6 +77,9 @@ const CartPage = () => {
         await dispatch(
           updateCartItemQuantity({ productId: id, quantity })
         ).unwrap();
+
+        // Refresh product data to get updated quantities
+        dispatch(fetchProducts());
       } else {
         dispatch(updateQuantity({ id, quantity }));
       }
