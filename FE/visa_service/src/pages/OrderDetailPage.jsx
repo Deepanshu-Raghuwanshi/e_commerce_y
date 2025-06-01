@@ -48,7 +48,7 @@ const OrderDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-12 flex justify-center">
+      <div className="container mx-auto px-4 pt-24 pb-12 flex justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -56,7 +56,7 @@ const OrderDetailPage = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
           <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
             <p>
@@ -80,7 +80,7 @@ const OrderDetailPage = () => {
 
   if (!selectedOrder) {
     return (
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 text-center">
           <p className="text-gray-600 mb-4">Order not found.</p>
           <Link
@@ -95,7 +95,7 @@ const OrderDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 pt-24 pb-12">
       <div className="max-w-3xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Order Details</h1>

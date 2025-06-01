@@ -45,14 +45,14 @@ const OrderHistoryPage = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-12 flex justify-center">
+      <div className="container mx-auto px-4 pt-24 pb-12 flex justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 pt-24 pb-12">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Order History</h1>
 

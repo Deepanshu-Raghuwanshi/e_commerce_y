@@ -21,14 +21,14 @@ const ProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-12 flex justify-center">
+      <div className="container mx-auto px-4 pt-24 pb-12 flex justify-center">
         <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 pt-24 pb-12">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
