@@ -120,7 +120,16 @@ const ProductCard = ({ product }) => {
               <span className="text-xl sm:text-2xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 ${product.price.toFixed(2)}
               </span>
-              <span className="text-xs text-gray-500">Free shipping</span>
+              <div className="flex items-center">
+                <span className="text-xs text-gray-500 mr-2">
+                  Free shipping
+                </span>
+                {product.quantity && (
+                  <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+                    Left: {product.quantity}
+                  </span>
+                )}
+              </div>
             </div>
 
             <button

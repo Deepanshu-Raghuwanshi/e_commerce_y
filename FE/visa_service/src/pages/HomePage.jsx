@@ -227,6 +227,7 @@ const HomePage = () => {
                           category: product.category,
                           variant: product.variant,
                           image: product.image,
+                          quantity: product.quantity,
                         }}
                       />
                     </div>

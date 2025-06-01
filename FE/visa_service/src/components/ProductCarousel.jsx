@@ -62,6 +62,7 @@ const ProductCarousel = ({ products, title, autoscroll }) => {
                 category: product.category,
                 variant: product.variant,
                 image: product.image,
+                quantity: product.quantity,
               }}
             />
           ))}
@@ -146,6 +147,7 @@ const ProductCarousel = ({ products, title, autoscroll }) => {
                         category: product.category,
                         variant: product.variant,
                         image: product.image,
+                        quantity: product.quantity,
                       }}
                     />
                   ))}
