@@ -104,7 +104,7 @@ const ToastItem = ({ toast, onRemove }) => {
       className={`
         flex items-center px-4 py-3 mb-3 rounded-lg shadow-lg text-white border-l-4
         transform transition-all duration-300 ease-in-out
-        animate-in slide-in-from-right-full
+        animate-in slide-in-from-left-full
         ${getTypeStyles()}
       `}
     >
@@ -143,7 +143,7 @@ const ToastContainer = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full">
+    <div className="fixed bottom-4 left-4 z-50 max-w-sm w-full">
       <div className="space-y-2">
         {toasts.map((toast) => (
           <ToastItem
