@@ -16,9 +16,16 @@ export const fetchCart = createAsyncThunk(
 
 export const addItemToCart = createAsyncThunk(
   "cart/addItemToCart",
-  async ({ productId, quantity = 1 }, { rejectWithValue }) => {
+  async (
+    { productId, quantity = 1, productDetails = null },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await cartApi.addToCart(productId, quantity);
+      const response = await cartApi.addToCart(
+        productId,
+        quantity,
+        productDetails
+      );
       return response;
     } catch (error) {
       return rejectWithValue(

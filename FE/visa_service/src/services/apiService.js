@@ -200,13 +200,49 @@ export const cartApi = {
     try {
       // Check if user is authenticated
       if (!authApi.isAuthenticated()) {
-        // Return local cart if not authenticated
+        // Get local cart items
+        const localCartItems = JSON.parse(
+          localStorage.getItem("cartItems") || "[]"
+        );
+
+        // Get product details from localStorage if available
+        const localProductDetails = JSON.parse(
+          localStorage.getItem("productDetails") || "{}"
+        );
+
+        // Map cart items to include full product details
+        const itemsWithDetails = localCartItems.map((item) => {
+          const productDetails = localProductDetails[item.product] || {};
+
+          return {
+            product: {
+              _id: item.product,
+              name: productDetails.name || "Product",
+              price: productDetails.price || 0,
+              category: productDetails.category || "Unknown",
+              image: productDetails.image || "",
+              description: productDetails.description || "",
+            },
+            quantity: item.quantity,
+          };
+        });
+
+        // Calculate totals
+        const totalItems = itemsWithDetails.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        const totalPrice = itemsWithDetails.reduce(
+          (sum, item) => sum + item.product.price * item.quantity,
+          0
+        );
+
         return {
           success: true,
           data: {
-            items: JSON.parse(localStorage.getItem("cartItems") || "[]"),
-            totalPrice: 0, // Calculate this based on items
-            totalItems: 0, // Calculate this based on items
+            items: itemsWithDetails,
+            totalPrice,
+            totalItems,
             discount: 0,
             discountApplied: false,
           },
@@ -222,7 +258,7 @@ export const cartApi = {
   },
 
   // Add item to cart
-  addToCart: async (productId, quantity = 1) => {
+  addToCart: async (productId, quantity = 1, productDetails = null) => {
     try {
       // If not authenticated, store in localStorage
       if (!authApi.isAuthenticated()) {
@@ -237,15 +273,60 @@ export const cartApi = {
           cartItems.push({
             product: productId,
             quantity,
-            // Other product details would be added here in a real implementation
           });
         }
 
+        // Save cart items
         localStorage.setItem("cartItems", JSON.stringify(cartItems));
+
+        // Save product details in a separate localStorage item
+        if (productDetails) {
+          const storedProductDetails = JSON.parse(
+            localStorage.getItem("productDetails") || "{}"
+          );
+          storedProductDetails[productId] = {
+            name: productDetails.name,
+            price: productDetails.price,
+            category: productDetails.category,
+            image: productDetails.image,
+            description: productDetails.description,
+          };
+          localStorage.setItem(
+            "productDetails",
+            JSON.stringify(storedProductDetails)
+          );
+        }
+
+        // Get product details for response
+        const storedDetails = JSON.parse(
+          localStorage.getItem("productDetails") || "{}"
+        );
+        const itemsWithDetails = cartItems.map((item) => {
+          const details = storedDetails[item.product] || {};
+          return {
+            product: {
+              _id: item.product,
+              name: details.name || "Product",
+              price: details.price || 0,
+              category: details.category || "Unknown",
+              image: details.image || "",
+              description: details.description || "",
+            },
+            quantity: item.quantity,
+          };
+        });
+
         return {
           success: true,
           message: "Item added to cart",
-          data: { items: cartItems },
+          data: {
+            items: itemsWithDetails,
+            totalItems: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+            totalPrice: itemsWithDetails.reduce(
+              (sum, item) => sum + item.product.price * item.quantity,
+              0
+            ),
+          },
         };
       }
 
@@ -275,10 +356,37 @@ export const cartApi = {
         }
 
         localStorage.setItem("cartItems", JSON.stringify(cartItems));
+
+        // Get product details for response
+        const storedDetails = JSON.parse(
+          localStorage.getItem("productDetails") || "{}"
+        );
+        const itemsWithDetails = cartItems.map((item) => {
+          const details = storedDetails[item.product] || {};
+          return {
+            product: {
+              _id: item.product,
+              name: details.name || "Product",
+              price: details.price || 0,
+              category: details.category || "Unknown",
+              image: details.image || "",
+              description: details.description || "",
+            },
+            quantity: item.quantity,
+          };
+        });
+
         return {
           success: true,
           message: "Cart item updated",
-          data: { items: cartItems },
+          data: {
+            items: itemsWithDetails,
+            totalItems: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+            totalPrice: itemsWithDetails.reduce(
+              (sum, item) => sum + item.product.price * item.quantity,
+              0
+            ),
+          },
         };
       }
 
@@ -304,10 +412,40 @@ export const cartApi = {
         );
 
         localStorage.setItem("cartItems", JSON.stringify(updatedItems));
+
+        // Get product details for response
+        const storedDetails = JSON.parse(
+          localStorage.getItem("productDetails") || "{}"
+        );
+        const itemsWithDetails = updatedItems.map((item) => {
+          const details = storedDetails[item.product] || {};
+          return {
+            product: {
+              _id: item.product,
+              name: details.name || "Product",
+              price: details.price || 0,
+              category: details.category || "Unknown",
+              image: details.image || "",
+              description: details.description || "",
+            },
+            quantity: item.quantity,
+          };
+        });
+
         return {
           success: true,
           message: "Item removed from cart",
-          data: { items: updatedItems },
+          data: {
+            items: itemsWithDetails,
+            totalItems: updatedItems.reduce(
+              (sum, item) => sum + item.quantity,
+              0
+            ),
+            totalPrice: itemsWithDetails.reduce(
+              (sum, item) => sum + item.product.price * item.quantity,
+              0
+            ),
+          },
         };
       }
 

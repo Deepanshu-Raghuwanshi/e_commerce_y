@@ -22,6 +22,7 @@ const ProductCard = ({ product }) => {
           addItemToCart({
             productId: product.id,
             quantity: 1,
+            productDetails: product, // Pass the full product details
           })
         ).unwrap();
 
