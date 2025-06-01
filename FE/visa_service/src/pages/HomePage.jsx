@@ -129,6 +129,7 @@ const HomePage = () => {
             <ProductCarousel
               products={featuredProducts}
               title="✨ Featured Products"
+              autoscroll={true}
             />
           </div>
         )}
@@ -197,6 +198,7 @@ const HomePage = () => {
                       <ProductCarousel
                         products={categoryProducts.slice(0, 9)}
                         title={`🏷️ ${category}`}
+                        autoscroll={false}
                       />
                     </div>
                   );

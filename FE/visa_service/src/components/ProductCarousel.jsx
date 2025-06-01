@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 
-const ProductCarousel = ({ products, title }) => {
+const ProductCarousel = ({ products, title, autoscroll }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const itemsPerView = 3; // Fixed to always show 3 products per slide
@@ -21,7 +21,7 @@ const ProductCarousel = ({ products, title }) => {
   };
 
   useEffect(() => {
-    if (totalSlides <= 1 || isHovered) return;
+    if (totalSlides <= 1 || isHovered || !autoscroll) return;
 
     const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
