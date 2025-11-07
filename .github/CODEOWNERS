@@ -1,0 +1,16 @@
+# This file specifies code owners for the repository
+
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Backend
+
+/BE/ @Deepanshu-Raghuwanshi
+
+# Frontend
+
+/FE/ @Deepanshu-Raghuwanshi
+
+# Documentation and configuration
+
+/README.md @Deepanshu-Raghuwanshi
+/.github/ @Deepanshu-Raghuwanshi
