@@ -9,7 +9,7 @@ dotenv.config();
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI || "mongodb://localhost:27017/visa_services")
-  .then(() => console.log("MongoDB connected for seeding "))
+  .then(() => console.log("MongoDB connected for seeding"))
   .catch((err) => {
     console.error("MongoDB connection error:", err);
     process.exit(1);
