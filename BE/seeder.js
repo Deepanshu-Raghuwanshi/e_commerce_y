@@ -26,7 +26,7 @@ const seedProducts = async () => {
 
       // Insert products
       await Product.insertMany(products);
-      console.log("Products seeded successfully");
+      console.log("Products is seeded successfully");
     } else {
       console.log(
         `Database already contains ${count} products. Use --force flag to override.`
